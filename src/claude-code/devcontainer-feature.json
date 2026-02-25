@@ -1,0 +1,30 @@
+{
+  "id": "claude-code",
+  "version": "1.0.0",
+  "name": "Claude Code",
+  "description": "Installs Claude Code, Anthropic's official CLI for Claude. Supports latest and pinned npm versions. To pass your API key, add '\"remoteEnv\": { \"ANTHROPIC_API_KEY\": \"${localEnv:ANTHROPIC_API_KEY}\" }' in your devcontainer.json. To persist config, bind mount ~/.claude and ~/.claude.json.",
+  "documentationURL": "https://docs.anthropic.com/en/docs/claude-code",
+  "licenseURL": "https://github.com/anthropics/claude-code/blob/main/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "npm version to install: 'latest' or a specific version (e.g. '1.0.3')"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "anthropic.claude-code"
+      ]
+    },
+    "jetbrains": {
+      "plugins": [
+        "com.anthropic.code.plugin"
+      ]
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/node"
+  ]
+}

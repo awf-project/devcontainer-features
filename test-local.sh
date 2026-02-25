@@ -5,6 +5,16 @@ set -e
 # Requires: devcontainer CLI (npm install -g @devcontainers/cli) and Docker
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+NO_CACHE=false
+
+# Parse flags
+while [[ "$1" == -* ]]; do
+    case "$1" in
+        --no-cache) NO_CACHE=true; shift ;;
+        *) echo -e "${RED}Unknown option: $1${NC}"; exit 1 ;;
+    esac
+done
+
 FEATURE="${1:-flutter}"
 SCENARIO="${2:-}"
 
@@ -55,4 +65,10 @@ run_tests() {
 }
 
 check_prerequisites
+
+if [ "$NO_CACHE" = true ]; then
+    echo -e "${YELLOW}==> Pruning Docker build cache...${NC}"
+    docker builder prune -f >/dev/null 2>&1
+fi
+
 run_tests
