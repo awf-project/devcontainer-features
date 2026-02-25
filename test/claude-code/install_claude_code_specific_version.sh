@@ -7,10 +7,10 @@ set -e
 source "$(dirname "$0")/test.sh"
 
 # Additional check: verify the exact version was installed
-INSTALLED=$(npm list -g @anthropic-ai/claude-code --depth=0 2>/dev/null | grep @anthropic-ai/claude-code | grep -oP '\d+\.\d+\.\d+')
+INSTALLED=$(claude --version 2>&1 | grep -oP '\d+\.\d+\.\d+')
 EXPECTED="2.1.30"
 if [ "$INSTALLED" != "$EXPECTED" ]; then
-    echo "FAIL: Expected @anthropic-ai/claude-code@${EXPECTED}, got ${INSTALLED}"
+    echo "FAIL: Expected version ${EXPECTED}, got ${INSTALLED}"
     exit 1
 fi
 echo "PASS: Correct version ${EXPECTED} installed"
