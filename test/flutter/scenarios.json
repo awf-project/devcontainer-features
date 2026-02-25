@@ -1,0 +1,24 @@
+{
+  "install_flutter_stable": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "flutter": {}
+    }
+  },
+  "install_flutter_specific_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "flutter": {
+        "version": "3.27.4"
+      }
+    }
+  },
+  "install_flutter_with_precache_web": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "flutter": {
+        "precacheWeb": true
+      }
+    }
+  }
+}

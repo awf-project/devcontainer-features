@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits"
+  ],
+  "schedule": ["after 10pm every weekday", "before 5am on weekends"],
+  "timezone": "Europe/Paris",
+  "prConcurrentLimit": 5,
+  "prHourlyLimit": 1,
+  "packageRules": [
+    {
+      "description": "Automerge GitHub Actions patch updates",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Automerge devcontainer features patch updates",
+      "matchManagers": ["devcontainers"],
+      "matchUpdateTypes": ["patch"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Group GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "groupSlug": "github-actions"
+    },
+    {
+      "description": "Group devcontainer features updates",
+      "matchManagers": ["devcontainers"],
+      "groupName": "devcontainer features",
+      "groupSlug": "devcontainer"
+    },
+    {
+      "description": "Require approval for major GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    }
+  ]
+}

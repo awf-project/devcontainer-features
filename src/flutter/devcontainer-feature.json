@@ -1,0 +1,52 @@
+{
+  "id": "flutter",
+  "version": "1.0.0",
+  "name": "Flutter SDK",
+  "description": "Installs the Flutter SDK with Dart for cross-platform development. Supports stable, beta, master channels and specific versions.",
+  "documentationURL": "https://flutter.dev/docs/get-started/install/linux",
+  "licenseURL": "https://github.com/flutter/flutter/blob/master/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "stable",
+      "description": "Flutter channel (stable, beta, master) or specific version (e.g. 3.27.4)"
+    },
+    "precacheWeb": {
+      "type": "boolean",
+      "default": false,
+      "description": "Run 'flutter precache --web' after install (faster first web build)"
+    },
+    "precacheLinux": {
+      "type": "boolean",
+      "default": false,
+      "description": "Run 'flutter precache --linux' after install (faster first Linux desktop build)"
+    },
+    "precacheAndroid": {
+      "type": "boolean",
+      "default": false,
+      "description": "Run 'flutter precache --android' after install. Requires Android SDK installed separately."
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.dart-code",
+        "Dart-Code.flutter"
+      ]
+    },
+    "jetbrains": {
+      "plugins": [
+        "Dart",
+        "io.flutter"
+      ]
+    }
+  },
+  "containerEnv": {
+    "FLUTTER_HOME": "/opt/flutter",
+    "PATH": "/opt/flutter/bin:/opt/flutter/bin/cache/dart-sdk/bin:${PATH}"
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/devcontainers/features/git"
+  ]
+}

@@ -1,0 +1,33 @@
+name: "PR - Test Updated Features"
+
+on:
+  pull_request:
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      features: ${{ steps.filter.outputs.changes }}
+    steps:
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            flutter: ./**/flutter/**
+
+  test:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    if: ${{ needs.detect-changes.outputs.features != '[]' }}
+    strategy:
+      matrix:
+        feature: ${{ fromJson(needs.detect-changes.outputs.features) }}
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: "Test feature: ${{ matrix.feature }}"
+        uses: devcontainers/action@v1
+        with:
+          base-path-to-features: "./src"
+          features: ${{ matrix.feature }}
