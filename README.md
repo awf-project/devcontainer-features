@@ -73,7 +73,7 @@ Flutter and Dart binaries are added to `PATH` automatically.
 
 ### Claude Code
 
-Installs [Claude Code](https://docs.anthropic.com/en/docs/claude-code), Anthropic's official CLI for Claude. Supports latest and pinned npm versions.
+Installs [Claude Code](https://docs.anthropic.com/en/docs/claude-code), Anthropic's official CLI for Claude via the official installer. Supports latest and pinned versions.
 
 ```jsonc
 // devcontainer.json
@@ -88,7 +88,7 @@ Installs [Claude Code](https://docs.anthropic.com/en/docs/claude-code), Anthropi
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `version` | string | `latest` | npm version: `latest` or a specific version (e.g. `1.0.3`) |
+| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `1.0.3`) |
 
 #### Examples
 
@@ -118,28 +118,15 @@ The feature does not set `ANTHROPIC_API_KEY` automatically. Pass it from your ho
 
 This injects the key at runtime without baking it into the Docker image layer.
 
-#### Persisting Configuration
+#### Persistent Configuration
 
-To persist your Claude config across container rebuilds, add bind mounts to your `devcontainer.json`:
+Configuration persists automatically via a Docker named volume mounted at `/claude-config`. On each container start, a symlink `~/.claude -> /claude-config` is created for the logged-in user.
 
-```jsonc
-{
-  "mounts": [
-    {
-      "source": "${localEnv:HOME}/.claude",
-      "target": "/home/vscode/.claude",
-      "type": "bind"
-    },
-    {
-      "source": "${localEnv:HOME}/.claude.json",
-      "target": "/home/vscode/.claude.json",
-      "type": "bind"
-    }
-  ]
-}
-```
+- No configuration required — it works out of the box
+- Authentication and settings survive container rebuilds
+- Each devcontainer gets its own isolated volume (`claude-code-config-<devcontainerId>`)
 
-Requires the [Node.js feature](https://github.com/devcontainers/features/tree/main/src/node) (`ghcr.io/devcontainers/features/node`).
+No additional features required — Claude Code is installed as a standalone binary.
 
 ---
 

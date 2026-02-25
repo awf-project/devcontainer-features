@@ -21,11 +21,4 @@ if [ -z "$CLAUDE_VERSION" ]; then
 fi
 echo "PASS: claude --version => ${CLAUDE_VERSION}"
 
-# npm package must be registered globally
-if ! npm list -g @anthropic-ai/claude-code --depth=0 &>/dev/null; then
-    echo "FAIL: @anthropic-ai/claude-code not found in npm global packages"
-    exit 1
-fi
-echo "PASS: @anthropic-ai/claude-code present in npm global packages"
-
 echo "==> All Claude Code feature tests passed"
