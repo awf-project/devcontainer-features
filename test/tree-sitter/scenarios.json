@@ -1,0 +1,30 @@
+{
+  "install_tree_sitter_latest": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "tree-sitter": {}
+    }
+  },
+  "install_tree_sitter_with_php": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "tree-sitter": {
+        "grammarPhp": true
+      }
+    }
+  },
+  "install_tree_sitter_with_all_grammars": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "tree-sitter": {
+        "grammarPhp": true,
+        "grammarTypescript": true,
+        "grammarJavascript": true,
+        "grammarGo": true,
+        "grammarDart": true,
+        "grammarPython": true,
+        "grammarYaml": true
+      }
+    }
+  }
+}
