@@ -7,6 +7,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
 - [Available Features](#available-features)
   - [Flutter SDK](#flutter-sdk)
   - [Claude Code](#claude-code)
+  - [Tree-sitter](#tree-sitter)
 - [Repository Structure](#repository-structure)
 - [Local Testing](#local-testing)
 - [Contributing](#contributing)
@@ -128,23 +129,103 @@ Configuration persists automatically via a Docker named volume mounted at `/clau
 
 No additional features required — Claude Code is installed as a standalone binary.
 
+### Tree-sitter
+
+Installs the [Tree-sitter](https://tree-sitter.github.io/tree-sitter/) CLI for incremental parsing. Optionally compiles grammars (PHP, TypeScript, JavaScript, Go, Dart, Python, YAML) from official repos.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/tree-sitter:1": {}
+  }
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | string | `latest` | Tree-sitter CLI version: `latest` or a specific version (e.g. `0.25.4`) |
+| `grammarPhp` | boolean | `false` | Compile and install the PHP grammar |
+| `grammarTypescript` | boolean | `false` | Compile and install the TypeScript grammar |
+| `grammarJavascript` | boolean | `false` | Compile and install the JavaScript grammar |
+| `grammarGo` | boolean | `false` | Compile and install the Go grammar |
+| `grammarDart` | boolean | `false` | Compile and install the Dart grammar |
+| `grammarPython` | boolean | `false` | Compile and install the Python grammar |
+| `grammarYaml` | boolean | `false` | Compile and install the YAML grammar |
+
+#### Examples
+
+Install with PHP and TypeScript grammars:
+
+```jsonc
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/tree-sitter:1": {
+      "grammarPhp": true,
+      "grammarTypescript": true
+    }
+  }
+}
+```
+
+Pin a specific version with all grammars:
+
+```jsonc
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/tree-sitter:1": {
+      "version": "0.25.4",
+      "grammarPhp": true,
+      "grammarTypescript": true,
+      "grammarJavascript": true,
+      "grammarGo": true,
+      "grammarDart": true,
+      "grammarPython": true,
+      "grammarYaml": true
+    }
+  }
+}
+```
+
+#### Environment
+
+| Variable | Value |
+|----------|-------|
+| `TREE_SITTER_DIR` | `/usr/local/lib/tree-sitter` |
+
+Tree-sitter CLI is added to `PATH` automatically. Compiled grammars are stored under `$TREE_SITTER_DIR`.
+
 ---
 
 ## Repository Structure
 
 ```
 src/
-  claude-code/          # Claude Code feature source
+  claude-code/          # Claude Code feature
     devcontainer-feature.json
     install.sh
-  flutter/              # Flutter feature source
+  flutter/              # Flutter SDK feature
+    devcontainer-feature.json
+    install.sh
+  grepai/               # GrepAI feature
+    devcontainer-feature.json
+    install.sh
+  tree-sitter/          # Tree-sitter feature
     devcontainer-feature.json
     install.sh
 test/
-  claude-code/          # Claude Code feature tests
+  claude-code/          # Claude Code tests
     scenarios.json
     test.sh
-  flutter/              # Flutter feature tests
+  flutter/              # Flutter tests
+    scenarios.json
+    test.sh
+  grepai/               # GrepAI tests
+    scenarios.json
+    test.sh
+  tree-sitter/          # Tree-sitter tests
     scenarios.json
     test.sh
 .github/
