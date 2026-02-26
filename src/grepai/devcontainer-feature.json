@@ -1,0 +1,13 @@
+{
+  "id": "grepai",
+  "version": "1.0.0",
+  "name": "GrepAI",
+  "description": "Installs GrepAI, a semantic code search tool powered by embeddings. Requires an OpenAI API key or a local Ollama instance for embeddings.",
+  "documentationURL": "https://yoanbernabeu.github.io/grepai/quickstart/",
+  "licenseURL": "https://github.com/yoanbernabeu/grepai/blob/main/LICENSE",
+  "options": {},
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ],
+  "postStartCommand": "/usr/local/bin/grepai-quickstart"
+}
