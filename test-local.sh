@@ -8,9 +8,11 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 NO_CACHE=false
 
 # Parse flags
+BASE_IMAGE="mcr.microsoft.com/devcontainers/base:ubuntu"
 while [[ "$1" == -* ]]; do
     case "$1" in
         --no-cache) NO_CACHE=true; shift ;;
+        --base-image) BASE_IMAGE="$2"; shift 2 ;;
         *) echo -e "${RED}Unknown option: $1${NC}"; exit 1 ;;
     esac
 done
@@ -41,6 +43,10 @@ run_tests() {
         --features "$FEATURE"
         --project-folder "$SCRIPT_DIR"
     )
+
+    if [ -n "$BASE_IMAGE" ]; then
+        args+=(--base-image "$BASE_IMAGE")
+    fi
 
     if [ -n "$SCENARIO" ]; then
         args+=(--filter "$SCENARIO")

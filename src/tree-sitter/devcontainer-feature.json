@@ -1,0 +1,57 @@
+{
+  "id": "tree-sitter",
+  "version": "1.0.0",
+  "name": "Tree-sitter",
+  "description": "Installs the Tree-sitter CLI for incremental parsing. Optionally compiles grammars (PHP, TypeScript, JavaScript, Go, Dart, Python, YAML) from official repos.",
+  "documentationURL": "https://tree-sitter.github.io/tree-sitter/",
+  "licenseURL": "https://github.com/tree-sitter/tree-sitter/blob/master/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "Tree-sitter CLI version: 'latest' or a specific version (e.g. '0.25.4')"
+    },
+    "grammarPhp": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the PHP grammar (tree-sitter/tree-sitter-php)"
+    },
+    "grammarTypescript": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the TypeScript grammar (tree-sitter/tree-sitter-typescript)"
+    },
+    "grammarJavascript": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the JavaScript grammar (tree-sitter/tree-sitter-javascript)"
+    },
+    "grammarGo": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the Go grammar (tree-sitter/tree-sitter-go)"
+    },
+    "grammarDart": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the Dart grammar (UserNobody14/tree-sitter-dart)"
+    },
+    "grammarPython": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the Python grammar (tree-sitter/tree-sitter-python)"
+    },
+    "grammarYaml": {
+      "type": "boolean",
+      "default": false,
+      "description": "Compile and install the YAML grammar (tree-sitter-grammars/tree-sitter-yaml)"
+    }
+  },
+  "containerEnv": {
+    "TREE_SITTER_DIR": "/usr/local/lib/tree-sitter"
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/devcontainers/features/git"
+  ]
+}
