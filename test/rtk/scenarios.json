@@ -1,0 +1,10 @@
+{
+  "install_rtk_specific_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "rtk": {
+        "version": "0.22.2"
+      }
+    }
+  }
+}
