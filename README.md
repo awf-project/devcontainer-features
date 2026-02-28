@@ -8,6 +8,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
   - [Flutter SDK](#flutter-sdk)
   - [Claude Code](#claude-code)
   - [Tree-sitter](#tree-sitter)
+  - [RTK](#rtk)
 - [Repository Structure](#repository-structure)
 - [Local Testing](#local-testing)
 - [Contributing](#contributing)
@@ -197,6 +198,47 @@ Pin a specific version with all grammars:
 
 Tree-sitter CLI is added to `PATH` automatically. Compiled grammars are stored under `$TREE_SITTER_DIR`.
 
+### RTK
+
+Installs [RTK](https://www.rtk-ai.app/), a token-optimized CLI proxy for AI coding agents. Reduces token usage by 60-90% on dev operations by filtering and compressing tool output.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/rtk:1": {}
+  }
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `0.5.0`) |
+
+#### Examples
+
+Pin a specific version:
+
+```jsonc
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/rtk:1": {
+      "version": "0.5.0"
+    }
+  }
+}
+```
+
+#### Architecture Support
+
+RTK supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) architectures. The feature automatically detects the container architecture and downloads the appropriate binary.
+
+#### Global Initialization
+
+The feature runs `rtk init --global` during installation, setting up the global configuration for the container user.
+
 ---
 
 ## Repository Structure
@@ -212,6 +254,9 @@ src/
   grepai/               # GrepAI feature
     devcontainer-feature.json
     install.sh
+  rtk/                  # RTK feature
+    devcontainer-feature.json
+    install.sh
   tree-sitter/          # Tree-sitter feature
     devcontainer-feature.json
     install.sh
@@ -223,6 +268,9 @@ test/
     scenarios.json
     test.sh
   grepai/               # GrepAI tests
+    scenarios.json
+    test.sh
+  rtk/                  # RTK tests
     scenarios.json
     test.sh
   tree-sitter/          # Tree-sitter tests

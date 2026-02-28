@@ -1,0 +1,18 @@
+{
+  "id": "rtk",
+  "version": "1.0.0",
+  "name": "RTK",
+  "description": "Installs RTK, a token-optimized CLI proxy for AI coding agents. Reduces token usage by 60-90% on dev operations.",
+  "documentationURL": "https://www.rtk-ai.app/",
+  "licenseURL": "https://github.com/rtk-ai/rtk/blob/master/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "Version to install: 'latest' or a specific version (e.g. '0.5.0')"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}
