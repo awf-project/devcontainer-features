@@ -1,0 +1,11 @@
+{
+  "id": "awf-cli",
+  "version": "1.0.0",
+  "name": "AWF CLI",
+  "description": "Installs AWF CLI, an AI Workflow CLI for orchestrating AI coding agents. Binary is downloaded at container start via gh CLI (private repository).",
+  "options": {},
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/devcontainers/features/github-cli"
+  ]
+}

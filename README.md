@@ -9,6 +9,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
   - [Claude Code](#claude-code)
   - [Tree-sitter](#tree-sitter)
   - [RTK](#rtk)
+  - [AWF CLI](#awf-cli)
 - [Repository Structure](#repository-structure)
 - [Local Testing](#local-testing)
 - [Contributing](#contributing)
@@ -239,6 +240,38 @@ RTK supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) arc
 
 The feature runs `rtk init --global` during installation, setting up the global configuration for the container user.
 
+### AWF CLI
+
+> **Private package** — This feature requires access to the [awf-project/cli](https://github.com/awf-project/cli) private repository via the `gh` CLI. Only the latest version is available (active development).
+
+Installs [AWF CLI](https://github.com/awf-project/cli), an AI Workflow CLI for orchestrating AI coding agents.
+
+Since the repository is private, the binary is downloaded at container startup (not during build) using `gh release download`. This requires the `gh` CLI feature and your host `gh` config mounted into the container.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/awf-project/devcontainer-features/awf-cli:1": {}
+  },
+  "mounts": [
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,readonly"
+  ],
+  "postCreateCommand": "awf-install"
+}
+```
+
+#### How it works
+
+1. **Build time** (`install.sh`): installs dependencies and places the `awf-install` helper script
+2. **Container start** (`postCreateCommand`): `awf-install` uses `gh release download` to fetch the latest binary from the private repo
+3. Subsequent rebuilds skip the download if `awf` is already installed
+
+#### Architecture Support
+
+AWF CLI supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) architectures. The feature automatically detects the container architecture and downloads the appropriate binary.
+
 ---
 
 ## Repository Structure
@@ -252,6 +285,9 @@ src/
     devcontainer-feature.json
     install.sh
   grepai/               # GrepAI feature
+    devcontainer-feature.json
+    install.sh
+  awf-cli/              # AWF CLI feature (private)
     devcontainer-feature.json
     install.sh
   rtk/                  # RTK feature
@@ -268,6 +304,9 @@ test/
     scenarios.json
     test.sh
   grepai/               # GrepAI tests
+    scenarios.json
+    test.sh
+  awf-cli/              # AWF CLI tests
     scenarios.json
     test.sh
   rtk/                  # RTK tests
