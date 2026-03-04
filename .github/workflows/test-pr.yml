@@ -37,8 +37,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: "Isolate feature: ${{ matrix.feature }}"
+        run: |
+          # Keep only the changed feature so the action tests just that one
+          for dir in src/*/; do
+            feature=$(basename "$dir")
+            if [ "$feature" != "${{ matrix.feature }}" ]; then
+              rm -rf "src/${feature}" "test/${feature}"
+            fi
+          done
+
       - name: "Test feature: ${{ matrix.feature }}"
         uses: devcontainers/action@v1
         with:
           base-path-to-features: "./src"
-          features: ${{ matrix.feature }}

@@ -336,6 +336,49 @@ source "$(dirname "$0")/test.sh"
 
 ---
 
+## Generation Constraints
+
+BEFORE writing any file, determine:
+1. Install method: `github-release` | `curl-installer` | `package-manager` | `uv-tool` | `pipx` | `cargo` | `npm-global` | `go-install`
+2. Version pinning: supported? (verify upstream docs — do not assume)
+3. Version check command: `--version` | `-V` | `version` | `--help` (verify upstream — do not assume)
+4. User-scoped install? → if YES, identify redirect env vars from table below
+
+### Rules
+
+```
+MUST   Identify install method BEFORE writing devcontainer-feature.json
+MUST   Every option in feature.json → corresponding $VAR usage in install.sh
+MUST   Every scenario in scenarios.json → achievable by install.sh
+MUST   Each scenario key in scenarios.json → matching .sh file in test/<feature>/
+MUST   Test /usr/local/bin/<binary>, not ~/.local/bin/
+MUST   Verify version check command works upstream before using in test.sh
+NEVER  Declare `version` option if tool cannot pin versions
+NEVER  `install -m 0755` a managed wrapper (uv/pipx/cargo wrappers depend on venv)
+NEVER  Write under $HOME (/root/) — /root/ is mode 700, inaccessible to _REMOTE_USER
+NEVER  Symlink from /root/ to /usr/local/bin/ — shebang still resolves through /root/
+IF     install method is user-scoped → export redirect env vars BEFORE install command
+IF     version pinning impossible → only create install_<feature>_latest scenario
+IF     --version unsupported → use verified alternative in test.sh
+AFTER  redirect install → chmod -R a+rX /usr/local/share/<tool>/
+IGNORE InvalidDefaultArgInFrom: ARG $BASE_IMAGE (harmless Docker warning)
+```
+
+### Permission Redirect Table
+
+When install method writes under `$HOME`, redirect ALL paths to `/usr/local/`:
+
+| Tool | Redirect env vars |
+|------|-------------------|
+| `uv tool install` | `UV_TOOL_BIN_DIR=/usr/local/bin` `UV_TOOL_DIR=/usr/local/share/uv/tools` `UV_PYTHON_INSTALL_DIR=/usr/local/share/uv/python` |
+| `pipx install` | `PIPX_HOME=/usr/local/share/pipx` `PIPX_BIN_DIR=/usr/local/bin` |
+| `cargo install` | `CARGO_HOME=/usr/local/share/cargo` |
+| `npm install -g` | `npm config set prefix /usr/local` |
+| `go install` | `GOPATH=/usr/local/share/go` `GOBIN=/usr/local/bin` |
+| `curl \| sh` | varies — check tool docs for redirect options |
+
+---
+
 ## Language and Style
 
 - All code, comments, commit messages, and documentation in **English**

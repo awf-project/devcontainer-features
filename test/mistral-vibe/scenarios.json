@@ -1,0 +1,16 @@
+{
+  "install_mistral_vibe_latest": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "mistral-vibe": {}
+    }
+  },
+  "install_mistral_vibe_specific_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "mistral-vibe": {
+        "version": "2.2.1"
+      }
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "mistral-vibe",
+  "version": "1.0.0",
+  "name": "Mistral Vibe",
+  "description": "Installs Mistral Vibe, a command-line coding assistant powered by Mistral's models for conversational access to your codebase.",
+  "documentationURL": "https://docs.mistral.ai/mistral-vibe/introduction",
+  "licenseURL": "https://github.com/mistralai/mistral-vibe/blob/main/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "Version to install: 'latest' or a specific version (e.g. '1.2.3')"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/devcontainers-extra/features/uv:1"
+  ]
+}
