@@ -135,7 +135,7 @@ No additional features required — Claude Code is installed as a standalone bin
 
 ### Clever Tools
 
-Installs Clever Tools, the official CLI for managing Clever Cloud applications and services.
+Installs [Clever Tools](https://github.com/CleverCloud/clever-tools), the official CLI for managing Clever Cloud applications and services. Installs via the official Clever Cloud APT repository.
 
 ```jsonc
 // devcontainer.json
@@ -150,11 +150,7 @@ Installs Clever Tools, the official CLI for managing Clever Cloud applications a
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `3.5.0`) |
-
-#### Architecture Support
-
-Clever Tools only provides Linux `x86_64` binaries upstream. The feature will fail on `aarch64` (arm64) containers.
+| `version` | string | `latest` | Version to install: `latest` or a specific APT package version (e.g. `4.6.0`) |
 
 ### Mistral Vibe
 
