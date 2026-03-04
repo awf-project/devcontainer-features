@@ -1,0 +1,368 @@
+name: create-feature
+version: "1.0.0"
+description: Scaffold a new devcontainer feature with all required files, tests, and documentation
+
+inputs:
+  - name: description
+    type: string
+    required: true
+    description: "What the feature installs/does (e.g. 'Installs Zellij terminal multiplexer')"
+  - name: name
+    type: string
+    required: false
+    description: "Feature name in kebab-case (auto-derived from description if empty)"
+  - name: force
+    type: boolean
+    required: false
+    default: false
+    description: "Bypass idempotency guards (overwrite existing feature)"
+
+# ---------------------------------------------------------------------------
+# PHASE 0: NAME & BRANCH
+# ---------------------------------------------------------------------------
+states:
+  initial: validate_name
+
+  validate_name:
+    type: step
+    description: Derive and validate feature name from description
+    script_file: "{{.awf.scripts_dir}}/create-feature/validate-name.sh"
+    on_success: check_existing
+    on_failure: {message: "Name validation failed", status: 1}
+
+  check_existing:
+    type: step
+    description: Check if feature directory already exists
+    command: |
+      if [ -d "src/{{trimSpace .states.validate_name.Output}}" ] && [ "{{.inputs.force}}" != "true" ]; then
+        echo "Feature src/{{trimSpace .states.validate_name.Output}}/ already exists. Use force=true to overwrite."
+        exit 1
+      fi
+      echo "OK"
+    on_success: create_branch
+    on_failure: check_branch
+
+  check_branch:
+    type: step
+    description: Check if feature branch already exists (resume case)
+    command: |
+      BRANCH="feat/{{trimSpace .states.validate_name.Output}}"
+      CURRENT=$(git branch --show-current)
+      if [ "$CURRENT" = "$BRANCH" ]; then
+        echo "Already on branch ${BRANCH}"
+      else
+        echo "ERROR: feature exists but not on expected branch. Current: ${CURRENT}"
+        exit 1
+      fi
+    on_success: check_metadata
+    on_failure: {message: "Branch check failed — feature exists and force not set", status: 1}
+
+  create_branch:
+    type: step
+    description: Create and checkout feature branch
+    command: |
+      BRANCH="feat/{{trimSpace .states.validate_name.Output}}"
+      CURRENT=$(git branch --show-current)
+      if [ "$CURRENT" = "$BRANCH" ]; then
+        echo "Already on branch ${BRANCH}"
+      else
+        git checkout -b "$BRANCH"
+        echo "Created branch ${BRANCH}"
+      fi
+    on_success: check_metadata
+    on_failure: {message: "Failed to create feature branch", status: 1}
+
+  # ---------------------------------------------------------------------------
+  # PHASE 1: SRC GENERATION
+  # ---------------------------------------------------------------------------
+
+  check_metadata:
+    type: step
+    description: Check if devcontainer-feature.json already exists
+    command: |
+      if [ -f "src/{{trimSpace .states.validate_name.Output}}/devcontainer-feature.json" ] && [ "{{.inputs.force}}" != "true" ]; then
+        echo "EXISTS"
+      else
+        echo "MISSING"
+      fi
+    transitions:
+      - when: "states.check_metadata.Output contains 'EXISTS'"
+        goto: check_install
+      - goto: generate_metadata
+
+  generate_metadata:
+    type: agent
+    description: Generate devcontainer-feature.json
+    provider: claude
+    prompt_file: prompts/create-feature/metadata.md
+    options:
+      model: opus
+      max_tokens: 4096
+      allowedTools: "Read,Grep,Glob,Edit,Write"
+      dangerouslySkipPermissions: true
+    timeout: 120
+    on_success: validate_feature_json
+    on_failure: error_generate
+
+  validate_feature_json:
+    type: step
+    description: Validate devcontainer-feature.json syntax and required fields
+    command: |
+      FEATURE_JSON="src/{{trimSpace .states.validate_name.Output}}/devcontainer-feature.json"
+      if [ ! -f "$FEATURE_JSON" ]; then
+        echo "ERROR: $FEATURE_JSON not found"
+        exit 1
+      fi
+      # Validate JSON syntax
+      if command -v python3 &>/dev/null; then
+        python3 -m json.tool "$FEATURE_JSON" > /dev/null
+      elif command -v jq &>/dev/null; then
+        jq empty "$FEATURE_JSON"
+      else
+        echo "SKIP: no JSON validator available"
+      fi
+      # Check required fields
+      for field in id version name description; do
+        if ! grep -q "\"${field}\"" "$FEATURE_JSON"; then
+          echo "ERROR: missing required field '${field}'"
+          exit 1
+        fi
+      done
+      echo "OK: $FEATURE_JSON is valid"
+    on_success: check_install
+    on_failure: error_generate
+
+  check_install:
+    type: step
+    description: Check if install.sh already exists
+    command: |
+      if [ -f "src/{{trimSpace .states.validate_name.Output}}/install.sh" ] && [ "{{.inputs.force}}" != "true" ]; then
+        echo "EXISTS"
+      else
+        echo "MISSING"
+      fi
+    transitions:
+      - when: "states.check_install.Output contains 'EXISTS'"
+        goto: check_test
+      - goto: generate_install
+
+  generate_install:
+    type: agent
+    description: Generate install.sh and optional helper scripts
+    provider: claude
+    prompt_file: prompts/create-feature/install.md
+    options:
+      model: opus
+      max_tokens: 8192
+      allowedTools: "Read,Grep,Glob,Edit,Write"
+      dangerouslySkipPermissions: true
+    timeout: 180
+    on_success: check_test
+    on_failure: error_generate
+
+  # ---------------------------------------------------------------------------
+  # PHASE 2: TEST GENERATION
+  # ---------------------------------------------------------------------------
+
+  check_test:
+    type: step
+    description: Check if test files already exist
+    command: |
+      if [ -f "test/{{trimSpace .states.validate_name.Output}}/test.sh" ] && [ "{{.inputs.force}}" != "true" ]; then
+        echo "EXISTS"
+      else
+        echo "MISSING"
+      fi
+    transitions:
+      - when: "states.check_test.Output contains 'EXISTS'"
+        goto: shellcheck
+      - goto: generate_tests
+
+  generate_tests:
+    type: agent
+    description: Generate test.sh, scenarios.json, and scenario scripts
+    provider: claude
+    prompt_file: prompts/create-feature/tests.md
+    options:
+      model: opus
+      max_tokens: 8192
+      allowedTools: "Read,Grep,Glob,Edit,Write"
+      dangerouslySkipPermissions: true
+    timeout: 180
+    on_success: shellcheck
+    on_failure: error_generate
+
+  # ---------------------------------------------------------------------------
+  # PHASE 3: VALIDATION
+  # ---------------------------------------------------------------------------
+
+  shellcheck:
+    type: step
+    description: Run ShellCheck on all generated scripts
+    command: |
+      FEATURE_ID="{{trimSpace .states.validate_name.Output}}"
+      find "src/${FEATURE_ID}" "test/${FEATURE_ID}" -name '*.sh' -type f | xargs -r shellcheck -S error 2>&1
+    on_success: run_tests
+    on_failure: fix_shellcheck
+
+  fix_shellcheck:
+    type: agent
+    description: Fix ShellCheck errors in generated scripts
+    provider: claude
+    prompt: |
+      ShellCheck found errors in the scripts for feature "{{trimSpace .states.validate_name.Output}}".
+
+      ShellCheck output:
+      {{.states.shellcheck.Output}}
+
+      Fix ALL ShellCheck errors (severity: error) in the following files:
+      - src/{{trimSpace .states.validate_name.Output}}/*.sh
+      - test/{{trimSpace .states.validate_name.Output}}/*.sh
+
+      Read each file, fix the errors, and write the corrected version.
+      Do not change the logic — only fix ShellCheck compliance issues.
+    options:
+      model: opus
+      max_tokens: 8192
+      allowedTools: "Read,Grep,Glob,Edit,Write"
+      dangerouslySkipPermissions: true
+    timeout: 180
+    on_success: shellcheck_retry
+    on_failure: error_shellcheck
+
+  shellcheck_retry:
+    type: step
+    description: Re-run ShellCheck after fix attempt
+    command: |
+      FEATURE_ID="{{trimSpace .states.validate_name.Output}}"
+      find "src/${FEATURE_ID}" "test/${FEATURE_ID}" -name '*.sh' -type f | xargs -r shellcheck -S error 2>&1
+    on_success: run_tests
+    on_failure: error_shellcheck
+
+  run_tests:
+    type: step
+    description: Run local feature tests via test-local.sh
+    command: |
+      if command -v devcontainer &>/dev/null; then
+        ./test-local.sh {{trimSpace .states.validate_name.Output}}
+      else
+        echo "SKIP: devcontainer CLI not installed — skipping local tests"
+        echo "Run manually: ./test-local.sh {{trimSpace .states.validate_name.Output}}"
+      fi
+    timeout: 300
+    on_success: check_readme
+    on_failure: error_tests
+
+  # ---------------------------------------------------------------------------
+  # PHASE 4: DOCUMENTATION
+  # ---------------------------------------------------------------------------
+
+  check_readme:
+    type: step
+    description: Check if README already mentions this feature
+    command: |
+      FEATURE_ID="{{trimSpace .states.validate_name.Output}}"
+      NAME_HUMAN=$(echo "$FEATURE_ID" | awk -F'-' '{for(i=1;i<=NF;i++) $i=toupper(substr($i,1,1)) substr($i,2)} 1')
+      if grep -q "### ${NAME_HUMAN}" README.md && [ "{{.inputs.force}}" != "true" ]; then
+        echo "EXISTS"
+      else
+        echo "MISSING"
+      fi
+    transitions:
+      - when: "states.check_readme.Output contains 'EXISTS'"
+        goto: write_tracking
+      - goto: update_readme
+
+  update_readme:
+    type: agent
+    description: Add feature documentation to README.md
+    provider: claude
+    prompt_file: prompts/create-feature/readme.md
+    options:
+      model: sonnet
+      max_tokens: 4096
+      allowedTools: "Read,Grep,Glob,Edit"
+      dangerouslySkipPermissions: true
+    timeout: 120
+    on_success: write_tracking
+    on_failure: error_generate
+
+  # ---------------------------------------------------------------------------
+  # PHASE 5: TRACKING & SUMMARY
+  # ---------------------------------------------------------------------------
+
+  write_tracking:
+    type: step
+    description: Write execution tracking file
+    command: |
+      FEATURE_ID="{{trimSpace .states.validate_name.Output}}"
+      TRACKING_DIR=".awf/state/create-feature/${FEATURE_ID}"
+      mkdir -p "$TRACKING_DIR"
+      CREATED_AT=$(date -Iseconds)
+      cat > "${TRACKING_DIR}/status.md" <<TRACKING
+      # Feature: ${FEATURE_ID}
+
+      **Description**: {{.inputs.description}}
+      **Created**: ${CREATED_AT}
+      **Branch**: feat/${FEATURE_ID}
+
+      ## Files Generated
+
+      - [x] src/${FEATURE_ID}/devcontainer-feature.json
+      - [x] src/${FEATURE_ID}/install.sh
+      - [x] test/${FEATURE_ID}/test.sh
+      - [x] test/${FEATURE_ID}/scenarios.json
+      - [x] README.md (updated)
+
+      ## Status: COMPLETE
+      TRACKING
+    on_success: summary
+    on_failure: summary
+
+  summary:
+    type: step
+    description: Display creation summary
+    command: |
+      FEATURE_ID="{{trimSpace .states.validate_name.Output}}"
+      echo ""
+      echo "========================================="
+      echo "  Feature created: ${FEATURE_ID}"
+      echo "========================================="
+      echo ""
+      echo "  Branch: feat/${FEATURE_ID}"
+      echo ""
+      echo "  Files:"
+      ls -la "src/${FEATURE_ID}/" 2>/dev/null || true
+      ls -la "test/${FEATURE_ID}/" 2>/dev/null || true
+      echo ""
+      echo "  Next steps:"
+      echo "    1. Review generated files"
+      echo "    2. ./test-local.sh ${FEATURE_ID}"
+      echo "    3. git add && git commit"
+      echo "    4. Push PR"
+      echo ""
+    on_success: done
+
+  # ---------------------------------------------------------------------------
+  # TERMINAL STATES
+  # ---------------------------------------------------------------------------
+
+  done:
+    type: terminal
+    status: success
+    message: "Feature {{trimSpace .states.validate_name.Output}} created successfully"
+
+  error_generate:
+    type: terminal
+    status: failure
+    message: "Agent failed to generate files for feature {{trimSpace .states.validate_name.Output}}"
+
+  error_shellcheck:
+    type: terminal
+    status: failure
+    message: "ShellCheck errors could not be fixed automatically"
+
+  error_tests:
+    type: terminal
+    status: failure
+    message: "Feature tests failed — review test output and fix manually"

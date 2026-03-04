@@ -1,0 +1,10 @@
+# AWF Configuration
+# https://github.com/awf-project/cli
+
+version: "1"
+
+# Default log level: debug, info, warn, error
+log_level: info
+
+# Output format: text, json, table, quiet
+output_format: text
