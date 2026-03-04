@@ -7,6 +7,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
 - [Available Features](#available-features)
   - [Flutter SDK](#flutter-sdk)
   - [Claude Code](#claude-code)
+  - [Mistral Vibe](#mistral-vibe)
   - [Tree-sitter](#tree-sitter)
   - [RTK](#rtk)
   - [AWF CLI](#awf-cli)
@@ -130,6 +131,39 @@ Configuration persists automatically via a Docker named volume mounted at `/clau
 - Each devcontainer gets its own isolated volume (`claude-code-config-<devcontainerId>`)
 
 No additional features required — Claude Code is installed as a standalone binary.
+
+### Mistral Vibe
+
+Installs [Mistral Vibe](https://docs.mistral.ai/mistral-vibe/introduction), a command-line coding assistant powered by Mistral's models for conversational access to your codebase.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/mistral-vibe:1": {}
+  }
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `1.2.3`) |
+
+#### API Key
+
+The feature does not set `MISTRAL_API_KEY` automatically. Pass it from your host via `remoteEnv` in your `devcontainer.json`:
+
+```jsonc
+{
+  "remoteEnv": {
+    "MISTRAL_API_KEY": "${localEnv:MISTRAL_API_KEY}"
+  }
+}
+```
+
+This injects the key at runtime without baking it into the Docker image layer.
 
 ### Tree-sitter
 

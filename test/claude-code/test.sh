@@ -21,4 +21,18 @@ if [ -z "$CLAUDE_VERSION" ]; then
 fi
 echo "PASS: claude --version => ${CLAUDE_VERSION}"
 
+# claude binary must exist in ~/.local/bin
+if [ ! -x "$HOME/.local/bin/claude" ]; then
+    echo "FAIL: claude binary not found in \$HOME/.local/bin"
+    exit 1
+fi
+echo "PASS: claude binary in \$HOME/.local/bin"
+
+# ~/.local/bin must be in PATH (set by link-claude-config)
+if ! echo "$PATH" | grep -q "$HOME/.local/bin"; then
+    echo "FAIL: \$HOME/.local/bin not in PATH"
+    exit 1
+fi
+echo "PASS: \$HOME/.local/bin in PATH"
+
 echo "==> All Claude Code feature tests passed"
