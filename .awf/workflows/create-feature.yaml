@@ -94,7 +94,7 @@ states:
     type: agent
     description: Generate devcontainer-feature.json
     provider: claude
-    prompt_file: prompts/create-feature/metadata.md
+    prompt_file: "{{.awf.prompts_dir}}/create-feature/metadata.md"
     options:
       model: opus
       max_tokens: 4096
@@ -150,7 +150,7 @@ states:
     type: agent
     description: Generate install.sh and optional helper scripts
     provider: claude
-    prompt_file: prompts/create-feature/install.md
+    prompt_file: "{{.awf.prompts_dir}}/create-feature/install.md"
     options:
       model: opus
       max_tokens: 8192
@@ -182,7 +182,7 @@ states:
     type: agent
     description: Generate test.sh, scenarios.json, and scenario scripts
     provider: claude
-    prompt_file: prompts/create-feature/tests.md
+    prompt_file: "{{.awf.prompts_dir}}/create-feature/tests.md"
     options:
       model: opus
       max_tokens: 8192
@@ -277,7 +277,7 @@ states:
     type: agent
     description: Add feature documentation to README.md
     provider: claude
-    prompt_file: prompts/create-feature/readme.md
+    prompt_file: "{{.awf.prompts_dir}}/create-feature/readme.md"
     options:
       model: sonnet
       max_tokens: 4096
