@@ -1,0 +1,18 @@
+{
+  "id": "clever-tools",
+  "version": "1.0.0",
+  "name": "Clever Tools",
+  "description": "Installs Clever Tools, the official CLI for managing Clever Cloud applications and services.",
+  "documentationURL": "https://www.clever.cloud/developers/doc/cli/install/",
+  "licenseURL": "https://github.com/CleverCloud/clever-tools/blob/master/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "Version to install: 'latest' or a specific version (e.g. '1.2.3')"
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

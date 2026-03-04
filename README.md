@@ -7,6 +7,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
 - [Available Features](#available-features)
   - [Flutter SDK](#flutter-sdk)
   - [Claude Code](#claude-code)
+  - [Clever Tools](#clever-tools)
   - [Mistral Vibe](#mistral-vibe)
   - [Tree-sitter](#tree-sitter)
   - [RTK](#rtk)
@@ -131,6 +132,29 @@ Configuration persists automatically via a Docker named volume mounted at `/clau
 - Each devcontainer gets its own isolated volume (`claude-code-config-<devcontainerId>`)
 
 No additional features required — Claude Code is installed as a standalone binary.
+
+### Clever Tools
+
+Installs Clever Tools, the official CLI for managing Clever Cloud applications and services.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/clever-tools:1": {}
+  }
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `3.5.0`) |
+
+#### Architecture Support
+
+Clever Tools only provides Linux `x86_64` binaries upstream. The feature will fail on `aarch64` (arm64) containers.
 
 ### Mistral Vibe
 

@@ -1,0 +1,16 @@
+{
+  "install_clever_tools_latest": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "clever-tools": {}
+    }
+  },
+  "install_clever_tools_specific_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "clever-tools": {
+        "version": "4.6.0"
+      }
+    }
+  }
+}

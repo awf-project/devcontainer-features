@@ -60,7 +60,7 @@ echo "    Feature source: ${FEATURE_SRC}"
 
 # Build and start the container
 echo "==> Building devcontainer..."
-devcontainer up --log-level debug --workspace-folder "${WORKSPACE}"
+devcontainer up --log-level debug --build-no-cache --workspace-folder "${WORKSPACE}"
 
 # Run test assertions inside the container
 echo "==> Running test/${FEATURE}/test.sh..."
