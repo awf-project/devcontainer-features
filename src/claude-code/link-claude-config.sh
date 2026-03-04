@@ -30,3 +30,13 @@ fi
 touch "$config_file"
 echo "claude-config: $target_file -> $config_file" >&2
 ln -snf "$config_file" "$target_file"
+
+# Ensure ~/.local/bin is in PATH for non-login shells (auto-update support)
+local_bin="$home_dir/.local/bin"
+if [ -d "$local_bin" ]; then
+    profile_file="$home_dir/.profile"
+    if ! grep -q '.local/bin' "$profile_file" 2>/dev/null; then
+        echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$profile_file"
+        echo "claude-config: added $local_bin to PATH via $profile_file" >&2
+    fi
+fi

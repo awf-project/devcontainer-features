@@ -32,6 +32,17 @@ install -m 0755 "$CLAUDE_BIN" /usr/local/bin/claude
 
 echo "==> Claude Code $(claude --version) installed at $(command -v claude)"
 
+# Install Claude Code for the remote user so the auto-updater finds the
+# binary at ~/.local/bin/claude (the native install path it expects).
+if [ -n "${_REMOTE_USER:-}" ] && [ "$_REMOTE_USER" != "root" ]; then
+    echo "==> Installing Claude Code for user ${_REMOTE_USER} (auto-update support)..."
+    if [ "$VERSION" = "latest" ]; then
+        su - "$_REMOTE_USER" -c "curl -fsSL https://claude.ai/install.sh | bash"
+    else
+        su - "$_REMOTE_USER" -c "curl -fsSL https://claude.ai/install.sh | bash -s -- '$VERSION'"
+    fi
+fi
+
 # Pre-create the volume mount point with correct ownership so that Docker
 # named volumes inherit the ownership on first use (no sudo needed later).
 if [ -n "${_REMOTE_USER:-}" ]; then
