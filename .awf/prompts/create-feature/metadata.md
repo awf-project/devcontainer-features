@@ -4,7 +4,7 @@ Create the metadata file for a new devcontainer feature: **{{.inputs.description
 
 ## Instructions
 
-1. Read `src/rtk/devcontainer-feature.json` and `src/claude-code/devcontainer-feature.json` as reference patterns.
+1. Read `src/rtk/devcontainer-feature.json` as reference patterns.
 2. Create `src/{{trimSpace .states.validate_name.Output}}/devcontainer-feature.json` using the requirements below.
 
 ## Required Fields

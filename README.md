@@ -6,7 +6,6 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
 
 - [Available Features](#available-features)
   - [Flutter SDK](#flutter-sdk)
-  - [Claude Code](#claude-code)
   - [Clever Tools](#clever-tools)
   - [Mistral Vibe](#mistral-vibe)
   - [Tree-sitter](#tree-sitter)
@@ -75,63 +74,6 @@ Install with web precache for faster first build:
 | `FLUTTER_HOME` | `/opt/flutter` |
 
 Flutter and Dart binaries are added to `PATH` automatically.
-
-### Claude Code
-
-Installs [Claude Code](https://docs.anthropic.com/en/docs/claude-code), Anthropic's official CLI for Claude via the official installer. Supports latest and pinned versions.
-
-```jsonc
-// devcontainer.json
-{
-  "features": {
-    "ghcr.io/awf-project/devcontainer-features/claude-code:1": {}
-  }
-}
-```
-
-#### Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `1.0.3`) |
-
-#### Examples
-
-Pin a specific version:
-
-```jsonc
-{
-  "features": {
-    "ghcr.io/awf-project/devcontainer-features/claude-code:1": {
-      "version": "1.0.3"
-    }
-  }
-}
-```
-
-#### API Key
-
-The feature does not set `ANTHROPIC_API_KEY` automatically. Pass it from your host via `remoteEnv` in your `devcontainer.json`:
-
-```jsonc
-{
-  "remoteEnv": {
-    "ANTHROPIC_API_KEY": "${localEnv:ANTHROPIC_API_KEY}"
-  }
-}
-```
-
-This injects the key at runtime without baking it into the Docker image layer.
-
-#### Persistent Configuration
-
-Configuration persists automatically via a Docker named volume mounted at `/claude-config`. On each container start, a symlink `~/.claude -> /claude-config` is created for the logged-in user.
-
-- No configuration required — it works out of the box
-- Authentication and settings survive container rebuilds
-- Each devcontainer gets its own isolated volume (`claude-code-config-<devcontainerId>`)
-
-No additional features required — Claude Code is installed as a standalone binary.
 
 ### Clever Tools
 
@@ -332,9 +274,6 @@ AWF CLI supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64)
 
 ```
 src/
-  claude-code/          # Claude Code feature
-    devcontainer-feature.json
-    install.sh
   flutter/              # Flutter SDK feature
     devcontainer-feature.json
     install.sh
@@ -351,9 +290,6 @@ src/
     devcontainer-feature.json
     install.sh
 test/
-  claude-code/          # Claude Code tests
-    scenarios.json
-    test.sh
   flutter/              # Flutter tests
     scenarios.json
     test.sh
@@ -389,7 +325,7 @@ Test features locally before pushing:
 ./test-local.sh flutter install_flutter_stable
 
 # Force rebuild without Docker cache
-./test-local.sh --no-cache claude-code
+./test-local.sh --no-cache flutter
 ```
 
 Requires Docker and the [Dev Container CLI](https://github.com/devcontainers/cli) (`npm install -g @devcontainers/cli`).

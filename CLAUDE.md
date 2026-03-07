@@ -166,7 +166,6 @@ echo "==> <Feature> feature install complete"
 | Pattern | Used by | Description |
 |---------|---------|-------------|
 | Deferred install | awf-cli | Install a helper script, actual binary downloaded at runtime via `postCreateCommand` |
-| Config persistence | claude-code | Docker volume mount + symlink script in `postStartCommand` |
 | Post-start guidance | grepai | Quickstart banner displayed at container start |
 | Grammar compilation | tree-sitter | Build optional sub-components from source |
 | Multi-target download | rtk | Try multiple target triples until one succeeds |
