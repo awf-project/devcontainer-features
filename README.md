@@ -10,6 +10,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
   - [Mistral Vibe](#mistral-vibe)
   - [Tree-sitter](#tree-sitter)
   - [RTK](#rtk)
+  - [ZPM](#zpm)
   - [AWF CLI](#awf-cli)
 - [Repository Structure](#repository-structure)
 - [Local Testing](#local-testing)
@@ -236,6 +237,43 @@ RTK supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) arc
 
 The feature runs `rtk init --global` during installation, setting up the global configuration for the container user.
 
+### ZPM
+
+Installs [ZPM](https://github.com/awf-project/zpm), a Zig-based MCP server exposing a Trealla Prolog logic engine over STDIO for deterministic logical reasoning. Provides 29 MCP tools for knowledge management, logical querying, and truth maintenance.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/zpm:1": {}
+  }
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `v0.3.0`) |
+
+#### Examples
+
+Pin a specific version:
+
+```jsonc
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/zpm:1": {
+      "version": "v0.3.0"
+    }
+  }
+}
+```
+
+#### Architecture Support
+
+ZPM supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) architectures. The feature automatically detects the container architecture and downloads the appropriate binary. SHA256 checksums are verified on every install.
+
 ### AWF CLI
 
 > **Private package** — This feature requires access to the [awf-project/cli](https://github.com/awf-project/cli) private repository via the `gh` CLI. Only the latest version is available (active development).
@@ -289,6 +327,9 @@ src/
   tree-sitter/          # Tree-sitter feature
     devcontainer-feature.json
     install.sh
+  zpm/                  # ZPM feature
+    devcontainer-feature.json
+    install.sh
 test/
   flutter/              # Flutter tests
     scenarios.json
@@ -303,6 +344,9 @@ test/
     scenarios.json
     test.sh
   tree-sitter/          # Tree-sitter tests
+    scenarios.json
+    test.sh
+  zpm/                  # ZPM tests
     scenarios.json
     test.sh
 .github/
