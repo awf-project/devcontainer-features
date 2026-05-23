@@ -11,6 +11,7 @@ A collection of [Dev Container Features](https://containers.dev/implementors/fea
   - [Tree-sitter](#tree-sitter)
   - [RTK](#rtk)
   - [ZPM](#zpm)
+  - [Ztick](#ztick)
   - [AWF CLI](#awf-cli)
 - [Repository Structure](#repository-structure)
 - [Local Testing](#local-testing)
@@ -274,6 +275,43 @@ Pin a specific version:
 
 ZPM supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) architectures. The feature automatically detects the container architecture and downloads the appropriate binary. SHA256 checksums are verified on every install.
 
+### Ztick
+
+Installs [Ztick](https://github.com/awf-project/ztick), a push-driven, time-based job scheduler written in Zig. Supports TCP and REST/HTTP APIs, TLS 1.3, and multiple dispatch targets.
+
+```jsonc
+// devcontainer.json
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/ztick:1": {}
+  }
+}
+```
+
+#### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `version` | string | `latest` | Version to install: `latest` or a specific version (e.g. `0.3.0`) |
+
+#### Examples
+
+Pin a specific version:
+
+```jsonc
+{
+  "features": {
+    "ghcr.io/awf-project/devcontainer-features/ztick:1": {
+      "version": "0.3.0"
+    }
+  }
+}
+```
+
+#### Architecture Support
+
+Ztick supports Linux containers on both `x86_64` (amd64) and `aarch64` (arm64) architectures. The feature automatically detects the container architecture and downloads the appropriate binary. SHA256 checksums are verified on every install.
+
 ### AWF CLI
 
 > **Private package** — This feature requires access to the [awf-project/cli](https://github.com/awf-project/cli) private repository via the `gh` CLI. Only the latest version is available (active development).
@@ -327,6 +365,9 @@ src/
   tree-sitter/          # Tree-sitter feature
     devcontainer-feature.json
     install.sh
+  ztick/                # Ztick feature
+    devcontainer-feature.json
+    install.sh
   zpm/                  # ZPM feature
     devcontainer-feature.json
     install.sh
@@ -344,6 +385,9 @@ test/
     scenarios.json
     test.sh
   tree-sitter/          # Tree-sitter tests
+    scenarios.json
+    test.sh
+  ztick/                # Ztick tests
     scenarios.json
     test.sh
   zpm/                  # ZPM tests

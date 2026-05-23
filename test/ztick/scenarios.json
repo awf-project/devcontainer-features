@@ -1,0 +1,16 @@
+{
+  "install_ztick_latest": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "ztick": {}
+    }
+  },
+  "install_ztick_specific_version": {
+    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "features": {
+      "ztick": {
+        "version": "v0.3.0"
+      }
+    }
+  }
+}
