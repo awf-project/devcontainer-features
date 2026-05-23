@@ -1,82 +1,88 @@
 #!/bin/bash
 set -e
 
-# AWF CLI devcontainer feature
-#
-# Since awf-project/cli is a private repo, downloading the binary requires
-# GitHub authentication. The gh CLI config is mounted from the host at runtime,
-# so the actual download happens via postCreateCommand, not at build time.
-#
-# This script installs the download helper that runs at container start.
+# --- Options injected by devcontainer feature engine ---
+VERSION="${VERSION:-latest}"
 
-echo "==> AWF CLI feature: setting up deferred install"
+echo "==> AWF CLI feature: version=${VERSION}"
 
-# Ensure curl and tar are available (needed by the download script)
-if ! command -v curl &>/dev/null || ! command -v tar &>/dev/null; then
+# Ensure curl, sha256sum, and ca-certificates are available
+if ! command -v curl &>/dev/null || ! command -v sha256sum &>/dev/null; then
     echo "==> Installing missing dependencies..."
     apt-get update -y
-    apt-get install -y --no-install-recommends curl ca-certificates tar
-fi
-
-# Install the download helper script
-cat > /usr/local/bin/awf-install << 'SCRIPT'
-#!/bin/bash
-set -e
-
-# Skip if already installed
-if command -v awf &>/dev/null; then
-    echo "==> AWF CLI already installed: $(awf --version 2>&1)"
-    exit 0
-fi
-
-echo "==> AWF CLI: downloading latest version..."
-
-# Require gh CLI authenticated
-if ! command -v gh &>/dev/null; then
-    echo "ERROR: gh CLI is required to download AWF CLI from the private repository"
-    echo "Add ghcr.io/devcontainers/features/github-cli feature to your devcontainer.json"
-    exit 1
-fi
-
-if ! gh auth status &>/dev/null; then
-    echo "ERROR: gh CLI is not authenticated"
-    echo "Mount your host gh config: \"source=\${localEnv:HOME}/.config/gh,target=/home/\${remoteUser}/.config/gh,type=bind,readonly\""
-    exit 1
+    apt-get install -y --no-install-recommends curl ca-certificates coreutils
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 fi
 
 # Detect architecture
 ARCH=$(uname -m)
 case "$ARCH" in
-    x86_64|amd64)   GO_ARCH="amd64" ;;
-    aarch64|arm64)   GO_ARCH="arm64" ;;
+    x86_64|amd64)   ARCH_SUFFIX="amd64" ;;
+    aarch64|arm64)   ARCH_SUFFIX="arm64" ;;
     *)
         echo "ERROR: unsupported architecture: $ARCH"
         exit 1
         ;;
 esac
+echo "==> Detected architecture: ${ARCH} (${ARCH_SUFFIX})"
 
-REPO="awf-project/cli"
-TARBALL="awf_linux_${GO_ARCH}.tar.gz"
+# Resolve version
+if [ "$VERSION" = "latest" ]; then
+    VERSION=$(curl -fsSL "https://api.github.com/repos/awf-project/cli/releases/latest" \
+        | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    if [ -z "$VERSION" ]; then
+        echo "ERROR: failed to resolve latest AWF CLI version from GitHub API"
+        exit 1
+    fi
+    echo "==> Resolved latest version: ${VERSION}"
+fi
+
+# Ensure version has 'v' prefix (GitHub tags use v0.9.0 format)
+case "$VERSION" in
+    v*) ;;
+    *)  VERSION="v${VERSION}" ;;
+esac
+
+# Download tarball and checksums
 TMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TMP_DIR"' EXIT
 
-# Download latest release asset using gh CLI (handles private repo auth)
-echo "==> Downloading ${TARBALL} from ${REPO}..."
-gh release download --repo "$REPO" --pattern "$TARBALL" --dir "$TMP_DIR"
+ARTIFACT="awf_linux_${ARCH_SUFFIX}.tar.gz"
+DOWNLOAD_URL="https://github.com/awf-project/cli/releases/download/${VERSION}/${ARTIFACT}"
+CHECKSUMS_URL="https://github.com/awf-project/cli/releases/download/${VERSION}/checksums.txt"
 
-tar -xzf "${TMP_DIR}/${TARBALL}" -C "$TMP_DIR"
+echo "==> Downloading ${DOWNLOAD_URL}..."
+curl -fsSL "$DOWNLOAD_URL" -o "${TMP_DIR}/${ARTIFACT}"
+
+echo "==> Downloading checksums.txt..."
+curl -fsSL "$CHECKSUMS_URL" -o "${TMP_DIR}/checksums.txt"
+
+# Verify SHA256 checksum
+echo "==> Verifying checksum..."
+EXPECTED_SUM=$(grep "  ${ARTIFACT}$" "${TMP_DIR}/checksums.txt" | awk '{print $1}')
+if [ -z "$EXPECTED_SUM" ]; then
+    echo "ERROR: artifact ${ARTIFACT} not found in checksums.txt"
+    exit 1
+fi
+
+ACTUAL_SUM=$(sha256sum "${TMP_DIR}/${ARTIFACT}" | awk '{print $1}')
+if [ "$EXPECTED_SUM" != "$ACTUAL_SUM" ]; then
+    echo "ERROR: SHA256 checksum mismatch"
+    echo "  expected: ${EXPECTED_SUM}"
+    echo "  actual:   ${ACTUAL_SUM}"
+    exit 1
+fi
+echo "==> Checksum verified"
+
+# Extract and install binary
+tar -xzf "${TMP_DIR}/${ARTIFACT}" -C "$TMP_DIR"
 
 if [ ! -f "${TMP_DIR}/awf" ]; then
     echo "ERROR: awf binary not found in archive"
     exit 1
 fi
 
-sudo install -m 0755 "${TMP_DIR}/awf" /usr/local/bin/awf
+install -m 0755 "${TMP_DIR}/awf" /usr/local/bin/awf
 
-echo "==> AWF CLI $(awf --version 2>&1) installed at $(command -v awf)"
-SCRIPT
-
-chmod +x /usr/local/bin/awf-install
-
-echo "==> AWF CLI feature setup complete"
-echo "    Run 'awf-install' or add it to postCreateCommand to download the binary"
+echo "==> AWF CLI $(awf version 2>&1 | head -1) installed at $(command -v awf)"
+echo "==> AWF CLI feature install complete"
