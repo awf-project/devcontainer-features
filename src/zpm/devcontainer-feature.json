@@ -1,0 +1,18 @@
+{
+  "id": "zpm",
+  "version": "1.0.0",
+  "name": "ZPM",
+  "description": "Installs ZPM, a Zig-based MCP server exposing Trealla Prolog for deterministic logical reasoning.",
+  "documentationURL": "https://github.com/awf-project/zpm",
+  "licenseURL": "https://github.com/awf-project/zpm/blob/main/LICENSE",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "ZPM version to install (e.g., 'v0.3.0'). Use 'latest' for the most recent release."
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}
